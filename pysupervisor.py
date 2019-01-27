@@ -1,6 +1,8 @@
 #!/usr/local/bin/python3
 
 import argparse
+import psutil
+import re
 
 parser = argparse.ArgumentParser(description='Python implementation of a daemon supervisor')
 parser.add_argument('--name', metavar='NAME', dest='name', type=str, required=True,
@@ -16,3 +18,8 @@ parser.add_argument('--logfile', metavar='PATH', dest='delay', type=int, default
 
 if __name__ == '__main__':
     args = parser.parse_args()
+
+    proc_list = [p.info for p in psutil.process_iter(attrs=['pid', 'name']) if args.name in p.info['name']]
+
+    for proc in proc_list:
+        print(proc['pid'],'\t', proc['name'])
