@@ -2,7 +2,6 @@
 
 import argparse
 import psutil
-import re
 
 parser = argparse.ArgumentParser(description='Python implementation of a daemon supervisor')
 parser.add_argument('--name', metavar='NAME', dest='name', type=str, required=True,
@@ -19,7 +18,33 @@ parser.add_argument('--logfile', metavar='PATH', dest='delay', type=int, default
 if __name__ == '__main__':
     args = parser.parse_args()
 
+    pid_list = list()
     proc_list = [p.info for p in psutil.process_iter(attrs=['pid', 'name']) if args.name in p.info['name']]
 
-    for proc in proc_list:
-        print(proc['pid'],'\t', proc['name'])
+    if proc_list is not None:
+        print('List of matching processes: ')
+        for proc in proc_list:
+            print(proc['pid'], '\t', proc['name'])
+            pid_list.append(proc['pid'])
+
+    pid_capture = input('Which process do you want to monitor: ')
+
+    try:
+        pid_input = int(pid_capture)
+
+        if pid_input not in pid_list:
+            print('Process ID not in match list. Aborting...')
+            exit(1)
+
+        elif not psutil.pid_exists(pid_input):
+            print('Process already terminated. Aborting...')
+            exit(1)
+
+        else:
+            #TODO: Monitor
+            proc = psutil.Process(pid_input)
+            print('Monitoring pid: ', pid_input, ' process name: ', proc.name())
+
+    except ValueError:
+            print('Invalid type for Process ID. Must be integer. Aborting...')
+            exit(1)
