@@ -25,6 +25,7 @@ Python 3 and dependencies (tested using Python 3.7.2)
 
 Please follow official documentation on how to install this. https://www.python.org/downloads/
 
+
 ````
 sudo apt install python3 python3-pip
 pip3 install -r requirements.txt
@@ -42,6 +43,7 @@ Then the application will attach itself to the process and monitor it in daemon.
 If the process being watched is terminated, became zombie or ended forcefully, the app will respawn and monitor a new one.
 
 If the process cannot be respawned, it will stop after several number of attempts (user input).
+
 
 ````
 arvin$ python3 pysupervisor.py --help
@@ -65,8 +67,70 @@ optional arguments:
                         '/var/log/pysupervisor.log'
 ````
 
-It is important to check the permissions of filename where the app log is saved. 
+It is important to check the permissions of filepath where the app log is saved. 
 Otherwise, no log can be recorded and the app will crash.
 
-## Example
-TODO
+## Sample Runs
+Sample runs are done using test sh scripts provided.
+
+### Using non terminating process
+````
+$python3 pysupervisor.py --name bash -i 15 -d 10 -l ./pysupervisor.log
+List of matching processes: 
+351,	bash
+368,	bash
+1773,	bash
+1791,	bash
+Which process do you want to monitor (pid): 1791
+2019-01-29 23:49:41,246 root         INFO     Monitoring pid: 1791 process name: bash cmd: ['/bin/bash', './test_process_looping.sh']
+2019-01-29 23:49:41,246 root         INFO     Process bash with id 1791 is running
+2019-01-29 23:49:56,249 root         INFO     Process bash with id 1791 is running
+2019-01-29 23:50:11,251 root         INFO     Process bash with id 1791 is running
+2019-01-29 23:50:26,252 root         INFO     Process bash with id 1791 is running
+2019-01-29 23:50:41,256 root         INFO     Process bash with id 1791 is running
+````
+
+### Using a terminating process
+````
+$ python3 pysupervisor.py --name bash -i 15 -d 10 -l ./pysupervisor.log
+List of matching processes: 
+351,	bash
+368,	bash
+1773,	bash
+1918,	bash
+Which process do you want to monitor (pid): 1918
+2019-01-29 23:52:26,262 root         INFO     Monitoring pid: 1918 process name: bash cmd: ['/bin/bash', './test_process_terminating.sh']
+2019-01-29 23:52:26,262 root         INFO     Process bash with id 1918 is running
+2019-01-29 23:52:41,268 root         WARNING  Process bash with id 1918 terminated and is not existing anymore. Respawning process.
+2019-01-29 23:52:41,271 root         INFO     New process bash with pid 1923 respawned.
+2019-01-29 23:52:41,271 root         INFO     Retry count down to 4
+Process 1923 running. Terminates in 3 iteration.
+Process 1923 running. Terminates in 2 iteration.
+Process 1923 running. Terminates in 1 iteration.
+2019-01-29 23:52:51,273 root         INFO     Process bash with id 1923 is zombie. Respawning process.
+2019-01-29 23:52:51,276 root         INFO     New process bash with pid 1927 respawned.
+2019-01-29 23:52:51,277 root         INFO     Retry count down to 3
+Process 1927 running. Terminates in 3 iteration.
+Process 1927 running. Terminates in 2 iteration.
+Process 1927 running. Terminates in 1 iteration.
+2019-01-29 23:53:01,282 root         INFO     Process bash with id 1927 is zombie. Respawning process.
+2019-01-29 23:53:01,285 root         INFO     New process bash with pid 1931 respawned.
+2019-01-29 23:53:01,285 root         INFO     Retry count down to 2
+Process 1931 running. Terminates in 3 iteration.
+Process 1931 running. Terminates in 2 iteration.
+Process 1931 running. Terminates in 1 iteration.
+2019-01-29 23:53:11,291 root         INFO     Process bash with id 1931 is zombie. Respawning process.
+2019-01-29 23:53:11,294 root         INFO     New process bash with pid 1935 respawned.
+2019-01-29 23:53:11,295 root         INFO     Retry count down to 1
+Process 1935 running. Terminates in 3 iteration.
+Process 1935 running. Terminates in 2 iteration.
+Process 1935 running. Terminates in 1 iteration.
+2019-01-29 23:53:21,298 root         INFO     Process bash with id 1935 is zombie. Respawning process.
+2019-01-29 23:53:21,301 root         INFO     New process bash with pid 1939 respawned.
+2019-01-29 23:53:21,302 root         INFO     Retry count down to 0
+Process 1939 running. Terminates in 3 iteration.
+Process 1939 running. Terminates in 2 iteration.
+Process 1939 running. Terminates in 1 iteration.
+2019-01-29 23:53:31,304 root         WARNING  Max retries reached and process still not running. Aborting...
+````
+

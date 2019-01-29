@@ -89,9 +89,9 @@ if __name__ == '__main__':
     proc_list = [p.info for p in psutil.process_iter(attrs=['pid', 'name']) if args.name in p.info['name']]
 
     if len(proc_list) is not 0:
-        logger.info('List of matching processes: ')
+        print('List of matching processes: ')
         for proc in proc_list:
-            logger.info("{},\t{}".format(proc['pid'],  proc['name']))
+            print("{},\t{}".format(proc['pid'],  proc['name']))
             pid_list.append(proc['pid'])
     else:
         logger.warning('Process name does not match any running process. Aborting...')
